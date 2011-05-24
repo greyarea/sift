@@ -3,7 +3,7 @@
 -behaviour(gen_server).
 
 %% API
--export([get_value/1, start_link/1]).
+-export([get_value/1, find/1, do/3, start_link/1]).
 
 %% sift_metric behaviour callback
 -export([behaviour_info/1]).
@@ -29,6 +29,17 @@ get_value(Name) when is_list(Name) ->
 get_value(Name) when is_atom(Name) ->
     get_value(atom_to_list(Name)).
 
+find(Name) ->
+    AtomName = name_to_atom(Name),
+    case whereis(AtomName) of
+        undefined ->
+            false;
+        Pid ->
+            Pid
+    end.
+
+do(Pid, Command, Args) ->
+    gen_server:cast(Pid, {cmd, Command, Args}).
 
 start_link(Config) ->
     Name = proplists:get_value(name, Config),
@@ -66,10 +77,10 @@ handle_call(get_value, _From,
 handle_cast({cmd, Cmd, Args},
             State = #st{metric=Metric, metric_state=MetricState}) ->
     case Metric:handle_cmd(Cmd, Args, MetricState) of
-        {error, Reason, MetricState} ->
-            {stop, Reason, State#st{metric_state=MetricState}};
-        {ok, MetricState} ->
-            {noreply, State#st{metric_state=MetricState}}
+        {error, Reason, NewMetricState} ->
+            {stop, Reason, State#st{metric_state=NewMetricState}};
+        {ok, NewMetricState} ->
+            {noreply, State#st{metric_state=NewMetricState}}
     end.
 
 handle_info(_Info, State) ->

@@ -34,6 +34,17 @@ or:
 
     sift:get_value(gauge.erlang.waiting_msgs).
 
+## Counters
+
+Examples:
+   
+    sift_counter:inc("counter.duality.connected_users").
+    sift_counter:dec("counter.duality.connected_users", 1).
+
+There is no need to use `sift_counter:create/1` or
+`sift_counter:create/2` as counters are automatically created when
+first used. Automatically created counters start at zero.
+
 ## Introspection
 
 You can list all metrics with:
