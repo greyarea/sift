@@ -1,0 +1,9 @@
+%% -*- mode: erlang -*-
+
+{application, sift,
+ [{description, "Sift metrics library"},
+  {vsn, git},
+  {id, "sift"},
+  {mod, {sift_app, []}},
+  {applications, [kernel, stdlib, sasl, webmachine]},
+  {registered, [sift_sup]}]}.
