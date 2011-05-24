@@ -28,7 +28,7 @@ create(Name, InitialValue) ->
     Config = [{name, Name},
               {metric, ?MODULE},
               {init_val, InitialValue}],
-    supervisor:start_child(sift_sup, [Config]).
+    supervisor:start_child(sift_metric_sup, [Config]).
 
 inc(Name) ->
     inc(Name, 1).

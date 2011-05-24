@@ -19,7 +19,7 @@ create(Name, ValueFun) ->
     Config = [{name, Name},
               {metric, ?MODULE},
               {value_fun, ValueFun}],
-    supervisor:start_child(sift_sup, [Config]).
+    supervisor:start_child(sift_metric_sup, [Config]).
 
 init(Config) ->
     ValueFun = proplists:get_value(value_fun, Config),

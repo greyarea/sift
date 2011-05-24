@@ -18,7 +18,7 @@ stop() ->
 
 metrics() ->
     [pid_to_name(element(2, Spec)) ||
-        Spec <- supervisor:which_children(sift_sup)].
+        Spec <- supervisor:which_children(sift_metric_sup)].
 
 get_value(Name) ->
     sift_metric:get_value(Name).
