@@ -56,3 +56,11 @@ and generate a pretty report with:
     sift:report().
 
     
+## HTTP API
+
+Sift exposes all the metrics and their values at http://host:7438/ as
+a JSON object.  Note that S-I-F-T is 7-4-3-8 in T9.
+
+Example:
+
+    {"metrics":{"gauge.erlang.processes":1023,"gauge.erlang.waiting_msgs",0}}
