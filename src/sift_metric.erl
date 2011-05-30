@@ -3,7 +3,7 @@
 -behaviour(gen_server).
 
 %% API
--export([get_value/1, find/1, do/3, start_link/1]).
+-export([get_value/1, find/1, do/3, register/1, start_link/1]).
 
 %% sift_metric behaviour callback
 -export([behaviour_info/1]).
@@ -18,20 +18,16 @@
 
 -record(st, {metric, metric_state}).
 
-get_value(Name) when is_list(Name) ->
-    RegName = name_to_atom(Name),
-    case whereis(RegName) of
+get_value(Name) ->
+    case gproc:lookup_local_name({sift, metric, Name}) of
         undefined ->
             {error, no_exists};
-        _ ->
-            gen_server:call(name_to_atom(Name), get_value)
-    end;
-get_value(Name) when is_atom(Name) ->
-    get_value(atom_to_list(Name)).
+        Pid ->
+            gen_server:call(Pid, {get_value, Name})
+    end.
 
 find(Name) ->
-    AtomName = name_to_atom(Name),
-    case whereis(AtomName) of
+    case gproc:lookup_local_name({sift, metric, Name}) of
         undefined ->
             false;
         Pid ->
@@ -41,15 +37,18 @@ find(Name) ->
 do(Pid, Command, Args) ->
     gen_server:cast(Pid, {cmd, Command, Args}).
 
+register(Name) ->
+    true = gproc:add_local_name({sift, metric, Name}),
+    ok.
+
 start_link(Config) ->
-    Name = proplists:get_value(name, Config),
-    gen_server:start_link({local, name_to_atom(Name)}, ?MODULE, Config, []).
+    gen_server:start_link(?MODULE, Config, []).
 
 behaviour_info(callbacks) ->
     [{init, 1},
      {terminate, 2},
      {handle_cmd, 3},
-     {get_value, 1}];
+     {get_value, 2}];
 behaviour_info(_) ->
     undefined.
 
@@ -57,6 +56,7 @@ init(Config) ->
     Metric = proplists:get_value(metric, Config),
     case Metric:init(Config) of
         {ok, MetricState} ->
+            gproc:add_local_property({sift, metric}, Metric),
             {ok, #st{metric=Metric, metric_state=MetricState}};
         Other ->
             {stop, Other}
@@ -69,9 +69,9 @@ terminate(Reason, #st{metric=Metric, metric_state=MetricState}) ->
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-handle_call(get_value, _From,
+handle_call({get_value, Name}, _From,
             State = #st{metric=Metric, metric_state=MetricState}) ->
-    Reply = Metric:get_value(MetricState),
+    Reply = Metric:get_value(Name, MetricState),
     {reply, Reply, State#st{metric_state=MetricState}}.
 
 handle_cast({cmd, Cmd, Args},
@@ -85,11 +85,3 @@ handle_cast({cmd, Cmd, Args},
 
 handle_info(_Info, State) ->
     {stop, unknown_info, State}.
-
-%% internal functions
-
-name_to_atom(Name) when is_atom(Name) ->
-    list_to_atom("SIFT@" ++ atom_to_list(Name));
-name_to_atom(Name) when is_list(Name) ->
-    name_to_atom(list_to_atom(Name)).
-

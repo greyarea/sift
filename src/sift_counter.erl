@@ -19,7 +19,7 @@
 -export([init/1,
          terminate/2,
          handle_cmd/3,
-         get_value/1]).
+         get_value/2]).
  
 create(Name) ->
     create(Name, 0).
@@ -49,7 +49,11 @@ dec(Name, Amount) ->
     inc(Name, -Amount).
 
 init(Config) ->
+    Name = proplists:get_value(name, Config),
     InitialValue = proplists:get_value(init_val, Config),
+
+    sift_metric:register(Name),
+
     {ok, InitialValue}.
 
 terminate(_Reason, _State) ->
@@ -60,5 +64,5 @@ handle_cmd(inc, [], State) ->
 handle_cmd(inc, [X], State) ->
     {ok, State + X}.
  
-get_value(State) ->
+get_value(_Name, State) ->
     {ok, State}.

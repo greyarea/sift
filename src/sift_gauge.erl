@@ -13,7 +13,7 @@
 -export([init/1,
          terminate/2,
          handle_cmd/3,
-         get_value/1]).
+         get_value/2]).
  
 create(Name, ValueFun) ->
     Config = [{name, Name},
@@ -22,7 +22,11 @@ create(Name, ValueFun) ->
     supervisor:start_child(sift_metric_sup, [Config]).
 
 init(Config) ->
+    Name = proplists:get_value(name, Config),
     ValueFun = proplists:get_value(value_fun, Config),
+
+    sift_metric:register(Name),
+
     {ok, ValueFun}.
 
 terminate(_Reason, _State) ->
@@ -31,5 +35,5 @@ terminate(_Reason, _State) ->
 handle_cmd(_Cmd, _Args, State) ->
     {error, unknown_command, State}.
  
-get_value(State) ->
+get_value(_Name, State) ->
     {ok, State()}.

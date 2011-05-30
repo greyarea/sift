@@ -11,14 +11,14 @@ start() ->
     ensure_started(sasl),
     ensure_started(crypto),
     ensure_started(webmachine),
+    ensure_started(gproc),
     ok = application:start(sift).
 
 stop() ->
     ok = application:stop(sift).
 
 metrics() ->
-    [pid_to_name(element(2, Spec)) ||
-        Spec <- supervisor:which_children(sift_metric_sup)].
+    gproc:select([{{{n, l, {sift, metric, '$1'}}, '_', '_'}, [], ['$1']}]).
 
 get_value(Name) ->
     sift_metric:get_value(Name).
@@ -48,8 +48,3 @@ ensure_started(App) ->
         Other ->
             Other
     end.
-
-pid_to_name(Pid) ->
-    {registered_name, AtomName} = process_info(Pid, registered_name),
-    Name = atom_to_list(AtomName),
-    lists:sublist(Name, 6, length(Name)).
