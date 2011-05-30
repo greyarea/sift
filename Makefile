@@ -3,11 +3,11 @@
 all: compile
 
 depends:
-	rebar get-deps
-	rebar update-deps
+	./rebar get-deps
+	./rebar update-deps
 
 compile:
-	rebar compile skip_deps=true app=sift
+	./rebar compile skip_deps=true app=sift
 
 run:
 	erl -pz deps/*/ebin ebin \
