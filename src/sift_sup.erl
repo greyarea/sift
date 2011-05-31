@@ -19,16 +19,11 @@ init([]) ->
                  supervisor,
                  [sift_metric_sup]},
 
-    DispatchFile = filename:join([filename:dirname(code:which(?MODULE)),
-                                  "..",
-                                  "priv",
-                                  "dispatch.conf"]),
-    {ok, Dispatch} = file:consult(DispatchFile),
     WebConfig = [{port, 7438},
-                 {dispatch, Dispatch}],
+                 {ip, any}],
 
     Web = {sift_web,
-           {webmachine_mochiweb, start, [WebConfig]},
+           {sift_web, start, [WebConfig]},
            permanent,
            5000,
            worker,

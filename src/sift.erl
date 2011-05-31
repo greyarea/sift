@@ -9,8 +9,6 @@
 
 start() ->
     ensure_started(sasl),
-    ensure_started(crypto),
-    ensure_started(webmachine),
     ensure_started(gproc),
     ok = application:start(sift).
 

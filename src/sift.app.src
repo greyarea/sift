@@ -5,5 +5,5 @@
   {vsn, git},
   {id, "sift"},
   {mod, {sift_app, []}},
-  {applications, [kernel, stdlib, sasl, webmachine]},
-  {registered, [sift_sup]}]}.
+  {applications, [kernel, stdlib, sasl]},
+  {registered, [sift_sup, sift_metric_sup, sift_web]}]}.
