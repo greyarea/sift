@@ -45,6 +45,17 @@ There is no need to use `sift_counter:create/1` or
 `sift_counter:create/2` as counters are automatically created when
 first used. Automatically created counters start at zero.
 
+## Meters
+
+Examples:
+
+    sift_meter:mark("connections").
+
+    sift_meter:mark("mana_spent", 10).
+
+Note that a single meter produces four metrics, the mean rate, and the
+1, 5, and 15-min exponetially weighted averages.
+
 ## Introspection
 
 You can list all metrics with:
