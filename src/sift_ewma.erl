@@ -21,4 +21,9 @@ tick(EWMA = #ewma{alpha=Alpha, interval=Interval, count=Count, rate=Rate}) ->
     EWMA#ewma{count=0, rate=NewRate}.
 
 get_rate(#ewma{rate=Rate}) ->
-    Rate.
+    case Rate of
+        undefined ->
+            0;
+        N ->
+            N
+    end.
