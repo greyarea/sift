@@ -36,4 +36,8 @@ handle_cmd(_Cmd, _Args, State) ->
     {error, unknown_command, State}.
  
 get_value(_Name, State) ->
-    {ok, State()}.
+    try
+        {ok, State()}
+    catch
+        C:E -> {error, {exception, C, E}}
+    end.
